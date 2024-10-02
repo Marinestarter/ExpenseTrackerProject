@@ -1,4 +1,5 @@
 import flask
+import models
 from flask import Flask, request, redirect, url_for
 from datetime import datetime, timezone
 import sqlalchemy
@@ -13,7 +14,7 @@ db = SQLAlchemy(app)
 
 class Expenses(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(   db.String(50), nullable=False)
+    name = db.Column(db.String(50), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.Date, nullable=False)
     explanation = db.Column(db.Text, nullable=True)
@@ -26,10 +27,6 @@ class Expenses(db.Model):
         else:
             self.date = datetime.utcnow()  # Default to current time
         self.explanation = explanation
-
-
-with app.app_context():
-    db.create_all()
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -45,27 +42,23 @@ def new_transaction():
 
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction_handler():
-    id = 1
     name = request.form['title']
     amount = request.form['amount']
-    date_str = request.form.get('date')
-    explanation = request.form.get('explanation', 'default_explanation')
+    date_str = request.form['date']
+    explanation = request.form.get('explanation', '')
 
     date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
-    print(f"Name: {name}, Amount: {amount}, Date: {date}, Explanation: {explanation}")
     new_expense = Expenses(name=name, amount=amount, date=date, explanation=explanation)
     db.session.add(new_expense)
     db.session.commit()
 
-    return redirect(url_for('new_transaction'))
-
-
 @app.route('/transaction_record')
 def transaction_record():
-    expenses = Expenses.query.all()
+    page = request.args.get('page', 1, type=int)
+    expenses = Expenses.query.order_by(Expenses.date.desc()).paginate(page=page, per_page=10)
     return flask.render_template('transaction_list.html', expenses=expenses)
 
-
+    
 if __name__ == '__main__':
     app.run(debug=True)
