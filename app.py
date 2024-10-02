@@ -1,11 +1,12 @@
 import flask
 import models
-from flask import Flask, request, redirect, url_for
+from flask import Flask, request, redirect, url_for, flash
 from datetime import datetime, timezone
 import sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '10c8a311879a5115ac4fc1b652ccf6df'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -53,11 +54,31 @@ def add_transaction_handler():
     db.session.add(new_expense)
     db.session.commit()
 
+    return redirect(url_for('transaction_record'))
+
+
 @app.route('/transaction_record')
 def transaction_record():
     page = request.args.get('page', 1, type=int)
     expenses = Expenses.query.order_by(Expenses.date.desc()).paginate(page=page, per_page=10)
     return flask.render_template('transaction_list.html', expenses=expenses)
+
+@app.route('/update', methods=['POST'])
+def update():
+    temp_data = Expenses.query.get(request.form.get('id'))
+
+    temp_data.name = request.form['title']
+    temp_data.amount = float(request.form['amount'])
+    datestr=request.form['date']
+    temp_data.date = datetime.strptime(datestr, '%Y-%m-%d').date()
+
+    temp_data.explanation = request.form['explanation']
+
+    db.session.commit()
+    flash("Transaction successfully updated!")
+    return redirect(url_for('transaction_record'))
+
+
 
     
 if __name__ == '__main__':
