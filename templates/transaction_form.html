@@ -1,37 +1,35 @@
-{% extends 'base.html' %}
-
-{% block title %}New Expense{% endblock %}
-
+{% extends 'base.html' %} {% block title %}New Expense{% endblock %}
 {% block body %}
-    <div class="p-5 mb-4 bg-custom-indigo-element rounded-3">
-        <h1 align="center"><b>New Expense</b></h1>
-    </div>
 
-    <div>
-        <form method="POST" action="/add_transaction">
-            <div class="row">
-                <div class="col">
-                    <label for="title">Title</label><br>
-                    <input type="text" class="form-control" id="title" placeholder="Title" name="title" minlength="5"
-                           required>
-                </div>
-                <div class="col">
-                    <label for="amount">Amount($) </label><br>
-                    <input type="number" class="form-control" id="amount" placeholder="$0.00" name="amount"
-                           required><br>
-                </div>
-            </div>
-            <div>
-                <label for="date">Date of Transaction</label>
-                <input type="date" id="date" name="date" required>
-            </div>
-            <div>
-                <label for="explanation">Details</label><br>
-                <textarea class="form-control" rows="5" id="explanation" name="explanation"></textarea>
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
+<div class="p-5 mb-4 bg-custom-indigo-element rounded-3">
+    <h1 align="center"><strong>New Expense</strong></h1>
+</div>
 
+<div>
+    <form action="{{ url_for('main.add_expense') }}" method="post">
+        <div class="row">
+            <div class="col">
+                <label for="title">Title</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="col">
+                <label for="amount">Amount($)</label>
+                <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
+            </div>
+        </div>
 
-        </form>
-    </div>
+        <div>
+            <label for="date">Date of Transaction</label>
+            <input type="date" class="form-control" id="date" name="date" required>
+        </div>
+
+        <div>
+            <label for="explanation">Details</label>
+            <textarea class="form-control" id="explanation" name="explanation" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Submit</button>
+    </form>
+</div>
+
 {% endblock %}

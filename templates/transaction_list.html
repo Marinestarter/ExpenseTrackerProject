@@ -36,7 +36,7 @@
                             </div>
                             <div class="modal-body">
 
-                                <form action= "{{url_for('update')}}" method="POST">
+                                <form action= "{{url_for('main.update')}}" method="POST">
 
 
                                     <div class="form-group">
@@ -59,7 +59,7 @@
 
                                     <div class="form-group">
                                         <label for="explanation">Explanation:</label>
-                                        <textarea class="form-control" rows="5" id="explanation" name="explanation">{{ expense.explanation       }}</textarea>
+                                        <textarea class="form-control" rows="5" id="explanation" name="explanation">{{ expense.explanation }}</textarea>
                                     </div>
                                     <div class="form-group">
                                         <button class="btn btn-primary" type="submit">Update Expense</button>
