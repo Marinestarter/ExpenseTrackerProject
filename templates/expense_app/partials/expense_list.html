@@ -1,0 +1,30 @@
+<div id="expense-list">
+    <h1>Show Orders</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Expense ID</th>
+                <th>Name</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Explanation</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in obj %}
+            <tr>
+                <td>{{i.id}}</td>
+                <td>{{i.name}}</td>
+                <td>{{i.amount}}</td>
+                <td>{{i.date}}</td>
+                <td>{{i.explanation}}</td>
+                <td>
+                    <button hx-get="{% url 'update_url' i.id %}" hx-target="#expense-form">Update</button>
+                    <button hx-delete="{% url 'delete_url' i.id %}" hx-target="closest tr" hx-swap="outerHTML">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,5 @@
+<form hx-post="{{ request.path }}" hx-target="#expense-list" hx-swap="innerHTML">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+</form>
