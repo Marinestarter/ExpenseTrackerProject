@@ -1,49 +1,51 @@
 {% extends 'expense_app/layout.html' %}
-{% block title %}Show Page{% endblock %}
+{% block title %}Show Expenses{% endblock %}
 {% block content %}
+
+<h1 class="mb-4">Show Expenses</h1>
+
 <div id="expense-list">
-<h1>Show Orders</h1>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Expense ID</th>
-            <th>Name</th>
-            <th>Amount</th>
-            <th>Date</th>
-            <th>Explanation</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for expense  in obj %}
-        <tr id="expense-{{ expense.id }}">
-            <td>{{expense.id}}</td>
-            <td>{{expense.name}}</td>
-            <td>{{expense.amount}}</td>
-            <td>{{expense.date|date:"Y-m-d H:i"}}</td>
-            <td>{{expense.explanation}}</td>
-            <td>
-                <button 
-                    hx-get="{% url 'update_url' expense.id %}"
-                    hx-target="#expense-form"
-                    hx-swap="innerHTML">
-                    Update
-                </button>
-                <button 
-                    hx-delete="{% url 'delete_url' expense.id %}"
-                    hx-confirm="Are you sure you want to delete this expense?"
-                    hx-target="#expense-{{ expense.id }}"
-                    hx-swap="outerHTML">
-                    Delete
-                </button>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-</div>
-<div id="expense-form">
-    <!-- Form will be loaded here -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Expense ID</th>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Explanation</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in obj %}
+                <tr>
+                    <td>{{ expense.id }}</td>
+                    <td>{{ expense.name }}</td>
+                    <td>${{ expense.amount }}</td>
+                    <td>{{ expense.date|date:"Y-m-d H:i" }}</td>
+                    <td>{{ expense.explanation }}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm"
+                                hx-get="{% url 'update_url' expense.id %}"
+                                hx-target="#expenseModal .modal-content"
+                                data-bs-toggle="modal"
+                                data-bs-target="#expenseModal">
+                            Update
+                        </button>
+                        <button class="btn btn-danger btn-sm"
+                                hx-get="{% url 'delete_url' expense.id %}"
+                                hx-target="#expenseModal .modal-content"
+                                data-bs-toggle="modal"
+                                data-bs-target="#expenseModal">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% endblock %}

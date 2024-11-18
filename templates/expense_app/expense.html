@@ -1,5 +1,23 @@
-<form hx-post="{{ request.path }}" hx-target="#expense-list" hx-swap="innerHTML">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Submit</button>
-</form>
+{% load crispy_forms_tags %}
+
+<div class="modal-header">
+    <h5 class="modal-title" id="expenseModalLabel">
+        {% if form.instance.id %}Update Expense{% else %}Add New Expense{% endif %}
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form id="expense-form" 
+          hx-post="{% if form.instance.id %}{% url 'update_url' form.instance.id %}{% else %}{% url 'new_expense_url' %}{% endif %}"
+          hx-target="#expense-list"
+          hx-swap="outerHTML">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">
+                {% if form.instance.id %}Update{% else %}Save{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
