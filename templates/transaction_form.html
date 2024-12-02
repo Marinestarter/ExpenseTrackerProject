@@ -1,11 +1,15 @@
 {% extends 'base.html' %} {% block title %}New Expense{% endblock %}
 {% block body %}
-
-<div class="p-5 mb-4 bg-custom-indigo-element rounded-3">
-    <h1 align="center"><strong>New Expense</strong></h1>
-</div>
-
-<div>
+<div class="container mt-4">
+ <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-4 bg-primary text-white rounded">
+                <h1 class="text-center mb-0">Add Expense</h1>
+            </div>
+        </div>
+ </div>
+<div class="card">
+<div class="card-body">
     <form action="{{ url_for('main.add_expense') }}" method="post">
         <div class="row">
             <div class="col">
@@ -31,5 +35,6 @@
         <button type="submit" class="btn btn-primary mt-3">Submit</button>
     </form>
 </div>
-
+</div>
+</div>
 {% endblock %}

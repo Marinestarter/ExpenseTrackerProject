@@ -1,17 +1,197 @@
 {% extends 'base.html' %}
 
-    {% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard{% endblock %}
+
 {% block body %}
-    <div class="container mt-5 tra">
-        <h1 align="center">Dashboard</h1>
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-4 bg-primary text-white rounded">
+                <h1 class="text-center mb-0">Financial Overview</h1>
+            </div>
+        </div>
     </div>
 
-        <form method="POST">
-            <div class="d-grid gap-2 col-6 mx-auto">
-            <a href="/transaction_form" class="btn btn-success">New Expense</a>
-            <a href="/transaction_record" class="btn btn-success">Expense Record</a>
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total Expenses</h5>
+                    <h3 class="card-text text-primary">${{ "%.2f"|format(total_expenses) }}</h3>
+                    <p class="text-muted">All time expenses</p>
+                </div>
             </div>
-        </form>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">This Month</h5>
+                    <h3 class="card-text text-success">${{ "%.2f"|format(current_month_expenses) }}</h3>
+                    <p class="text-muted">Current month total</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Daily Average</h5>
+                    <h3 class="card-text text-info">${{ "%.2f"|format(daily_average) }}</h3>
+                    <p class="text-muted">Based on last 30 days</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Transactions -->
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Recent Transactions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for expense in recent_expenses %}
+                                <tr>
+                                    <td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ expense.name }}</td>
+                                    <td>{{ expense.category.name if expense.category else 'Uncategorized' }}</td>
+                                    <td>${{ "%.2f"|format(expense.amount) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-end">
+                        <a href="{{ url_for('main.transaction_record') }}" class="btn btn-primary">View All Transactions</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Breakdown -->
+<div class="col-md-4 mb-4">
+    <div class="card">
+        <div class="card-header bg-white">
+            <h5 class="card-title mb-0">Category Breakdown</h5>
+        </div>
+        <div class="card-body">
+            <!-- Add canvas for the pie chart -->
+            <canvas id="categoryPieChart"></canvas>
+
+            <!-- Keep the existing category breakdown with progress bars -->
+            {% for category in category_totals %}
+            <div class="mb-3 mt-3">
+                <div class="d-flex justify-content-between">
+                    <span>{{ category.name }}</span>
+                    <span>${{ "%.2f"|format(category.total) }}</span>
+                </div>
+                <div class="progress mt-1">
+                    <div class="progress-bar" role="progressbar"
+                        style="width: {{ (category.total / total_expenses * 100)|round|int }}%">
+                        {{ (category.total / total_expenses * 100)|round|int }}%
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+    <!-- Monthly Comparison -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Monthly Comparison</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table text-center">
+                            <thead>
+                                <tr>
+                                    {% for month in monthly_comparison %}
+                                    <th>{{ month.month }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    {% for month in monthly_comparison %}
+                                    <td>
+                                        <div>${{ "%.2f"|format(month.total) }}</div>
+                                        <small class="text-muted">
+                                            {% if month.change > 0 %}
+                                            <span class="text-success">↑ {{ "%.1f"|format(month.change) }}%</span>
+                                            {% elif month.change < 0 %}
+                                            <span class="text-danger">↓ {{ "%.1f"|format(month.change|abs) }}%</span>
+                                            {% else %}
+                                            -
+                                            {% endif %}
+                                        </small>
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<!-- Add this script at the bottom of dashboard.html -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('categoryPieChart').getContext('2d');
+
+    // Generate random colors for each category
+    const generateColors = (count) => {
+        const colors = [];
+        for (let i = 0; i < count; i++) {
+            const hue = (i * 360) / count;
+            colors.push(`hsl(${hue}, 70%, 60%)`);
+        }
+        return colors;
+    };
+
+    const data = {
+        labels: [{% for category in category_totals %}'{{ category.name }}',{% endfor %}],
+        datasets: [{
+            data: [{% for category in category_totals %}{{ category.total }},{% endfor %}],
+            backgroundColor: generateColors({{ category_totals|length }}),
+            borderWidth: 1
+        }]
+    };
+
+    const config = {
+        type: 'pie',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    };
+
+    new Chart(ctx, config);
+});
+</script>
 {% endblock %}
-
-

@@ -1,16 +1,80 @@
 from datetime import datetime
 import flask
 from models import Expenses, Category
-from flask import Flask, request, redirect, url_for, flash, Blueprint
+from flask import Flask, request, redirect, url_for, flash, Blueprint, render_template
 from app import db
 
 
 main = Blueprint('main', __name__)
 
+from datetime import datetime, timedelta
+from sqlalchemy import func
 
-@main.route('/', methods=['GET', 'POST'])
+
+@main.route('/')
 def dashboard():
-    return flask.render_template('dashboard.html')
+    # Calculate total expenses
+    total_expenses = db.session.query(func.sum(Expenses.amount)).scalar() or 0
+
+    # Calculate current month expenses
+    current_month = datetime.utcnow().replace(day=1)
+    current_month_expenses = db.session.query(func.sum(Expenses.amount)) \
+                                 .filter(Expenses.date >= current_month).scalar() or 0
+
+    # Calculate daily average (last 30 days)
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    recent_total = db.session.query(func.sum(Expenses.amount)) \
+                       .filter(Expenses.date >= thirty_days_ago).scalar() or 0
+    daily_average = recent_total / 30
+
+    # Get recent transactions
+    recent_expenses = Expenses.query \
+        .order_by(Expenses.date.desc()) \
+        .limit(5) \
+        .all()
+
+    # Get total expenses by category
+    category_totals = db.session.query(
+        Category.name,
+        func.sum(Expenses.amount).label('total')
+    ).join(Expenses) \
+        .group_by(Category.name) \
+        .all()
+
+    # Get monthly comparison (last 6 months)
+    monthly_comparison = []
+    for i in range(5    , -1, -1):
+        month_start = datetime.utcnow().replace(day=1) - timedelta(days=i * 30)
+        month_end = (month_start + timedelta(days=32)).replace(day=1)
+
+        month_total = db.session.query(func.sum(Expenses.amount)) \
+                          .filter(Expenses.date >= month_start) \
+                          .filter(Expenses.date < month_end) \
+                          .scalar() or 0
+
+        # Calculate change percentage
+        if i < 5:  # Skip first month as we can't calculate change
+            prev_month = monthly_comparison[-1]['total']
+            if prev_month > 0:
+                change = ((month_total - prev_month) / prev_month) * 100
+            else:
+                change = 0
+        else:
+            change = 0
+
+        monthly_comparison.append({
+            'month': month_start.strftime('%b'),
+            'total': month_total,
+            'change': change
+        })
+
+    return render_template('dashboard.html',
+                           total_expenses=total_expenses,
+                           current_month_expenses=current_month_expenses,
+                           daily_average=daily_average,
+                           recent_expenses=recent_expenses,
+                           category_totals=category_totals,
+                           monthly_comparison=monthly_comparison)
 
 
 @main.route('/transaction_record')
@@ -24,6 +88,7 @@ def transaction_record():
 @main.route('/transaction_form')
 def new_transaction():
     categories = Category.query.all()
+    date= datetime.date
     return flask.render_template('transaction_form.html', categories=categories)
 
 
@@ -31,25 +96,24 @@ def new_transaction():
 def add_expense():
     try:
         name = request.form['title']
-        amount = float(request.form['amount'])  # Convert amount to float
+        amount = float(request.form['amount'])
         date_str = request.form['date']
         explanation = request.form.get('explanation', '')
-        category_id = request.form.get('category_id')  # Get category_id from form
+        category_id = request.form.get('category_id')
 
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
-        # Create new expense with proper category relationship
+
         new_expense = Expenses(
             name=name,
             amount=amount,
             date=date,
             explanation=explanation,
-            category_id=category_id if category_id else None  # Only set category_id if it exists
+            category_id=category_id if category_id else None
         )
 
         db.session.add(new_expense)
         db.session.commit()
-        flash('Transaction added successfully!', 'success')
     except ValueError as e:
         flash('Invalid input: Please check the amount and date format', 'danger')
         return redirect(url_for('main.new_transaction'))
@@ -69,8 +133,6 @@ def update():
     expense.explanation = request.form['explanation']
 
     db.session.commit()
-    flash("Transaction updated successfully!", "success")
-
     return redirect(url_for('main.transaction_record'))
 
 
@@ -80,7 +142,6 @@ def delete_expense(id):
     try:
         db.session.delete(expense)
         db.session.commit()
-        flash("Transaction deleted successfully!", "success")
     except Exception as e:
         flash("Error deleting transaction!", "danger")
 
@@ -102,7 +163,6 @@ def add_category():
         category = Category(name=name, description=description)
         db.session.add(category)
         db.session.commit()
-        flash('Category added successfully!', 'success')
     except Exception as e:
         flash('Error adding category!', 'danger')
 
@@ -115,7 +175,6 @@ def delete_category(id):
     try:
         db.session.delete(category)
         db.session.commit()
-        flash('Category deleted successfully!', 'success')
     except Exception as e:
         flash('Error deleting category!', 'danger')
 
