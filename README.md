@@ -90,57 +90,55 @@ An easy-to-use expense tracking application that allows users to log, manage, an
    ```bash
    pip install -r requirements.txt
    ```
-   4. Initialize the database:
+ 4. Initialize the database:
    ```bash
    flask db upgrade
    ```
-   5.Start the development server:
+ 5.Start the development server:
    ```bash
    flask run
    ```
-   6. The application will be available at http://localhost:5000
+ 6. The application will be available at http://localhost:5000
   
    ## Usage
 
-1. **Register or Login**:
-   - Visit the application URL at `http://127.0.0.1:5000/`.
-   - If you're a new user, click on the "Register" link to create an account by providing your username, email, and password.
-   - If you already have an account, log in using your credentials.
+  1.   **Register or Login**:
+     - Visit the application URL at `http://127.0.0.1:5000/`.
+     - If you're a new user, click on the "Register" link to create an account by providing your username, email, and password.
+     - If you already have an account, log in using your credentials.
 
-2. **Access the Dashboard**:
-   - After logging in, you'll be directed to the dashboard.
-   - The dashboard displays key financial summaries, including:
-     - Total expenses
-     - Current month’s expenses
-     - Spending trends and category breakdowns
-     - Recent transactions
+  2. **Access the Dashboard**:
+     - After logging in, you'll be directed to the dashboard.
+     - The dashboard displays key financial summaries, including:
+       - Total expenses
+       - Current month’s expenses
+       - Spending trends and category breakdowns
+       - Recent transactions
 
-3. **Add a New Expense**:
-   - Navigate to the "New Transaction" page.
-   - Fill in the form with:
-     - **Title**: A brief name for the transaction.
-     - **Amount**: The transaction amount.
-     - **Date**: The date of the transaction.
-     - **Category**: (Optional) Assign the expense to a category.
-     - **Explanation**: (Optional) Add additional notes about the transaction.
-   - Click "Save" to add the transaction to your record.
+  3. **Add a New Expense**:
+     - Navigate to the "New Transaction" page.
+     - Fill in the form with:
+       - **Title**: A brief name for the transaction.
+       - **Amount**: The transaction amount.
+       - **Date**: The date of the transaction.
+       - **Category**: (Optional) Assign the expense to a category.
+       - **Explanation**: (Optional) Add additional notes about the transaction.
+     - Click "Save" to add the transaction to your record.
 
-4. **View and Manage Transactions**:
-   - Go to the "Transaction Record" page to view all your expenses.
-   - Use the pagination controls to navigate through your records.
-   - Edit or delete transactions using the corresponding options next to each record.
+  4. **View and Manage Transactions**:
+     - Go to the "Transaction Record" page to view all your expenses.
+     - Use the pagination controls to navigate through your records.
+     - Edit or delete transactions using the corresponding options next to each record.
 
-5. **Manage Categories**:
-   - Navigate to the "Categories" page.
-   - Add new categories to organize your expenses.
-   - Edit or delete categories as needed.
-
-6. **Analyze Spending**:
-   - View category totals and monthly comparisons in the dashboard to analyze your spending habits.
-   - Use these insights to plan budgets or track financial goals.
-
-7. **Logout**:
-   - Click the "Logout" button to securely end your session.
-   - You can log back in anytime to resume tracking your expenses.
-
----
+  5. **Manage Categories**:
+     - Navigate to the "Categories" page.
+     - Add new categories to organize your expenses.
+     - Edit or delete categories as needed.
+  
+  6. **Analyze Spending**:
+     - View category totals and monthly comparisons in the dashboard to analyze your spending habits.
+     - Use these insights to plan budgets or track financial goals.
+  
+  7. **Logout**:
+     - Click the "Logout" button to securely end your session.
+     - You can log back in anytime to resume tracking your expenses.
