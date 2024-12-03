@@ -94,11 +94,11 @@ An easy-to-use expense tracking application that allows users to log, manage, an
    ```bash
    flask db upgrade
    ```
-   5.Start the development server:
+ 5. Start the development server:
    ```bash
    flask run
    ```
-   6. The application will be available at http://localhost:5000
+ 6. The application will be available at http://localhost:5000
   
    ## Usage
 
